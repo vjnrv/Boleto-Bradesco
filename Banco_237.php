@@ -30,12 +30,12 @@
  *    
  */
 class Banco_237 extends Boleto{
-    function setUp(){
-        $this->bank_name             = 'Bradesco SA';
+    function setUp($boleto){
+        $boleto->bank_name             = 'Bradesco SA';
     }
     
     //Implementation of Febraban free range set from position 20 to 44
-    function febraban_20to44(){
+    function febraban_20to44($boleto){
 	// 20-23    -> Código da Agencia (sem dígito)  4
 	// 24-25    -> Número da Carteira              2
 	// 26-36    -> Nosso Número (sem dígito)      11
@@ -43,32 +43,32 @@ class Banco_237 extends Boleto{
 	// 44-44    -> Zero (Fixo)                     1
 
         //positons 20 to 23
-        $this->febraban['20-44'] = $this->arguments['agencia'];
+        $boleto->febraban['20-44'] = $boleto->arguments['agencia'];
         //positons 24 to 25
-        $this->febraban['20-44'] .= $this->arguments['carteira'];
+        $boleto->febraban['20-44'] .= $boleto->arguments['carteira'];
         //positons 26 to 36
-        $this->febraban['20-44'] .= $this->computed['nosso_numero'] = str_pad($this->arguments['nosso_numero'], 11, 0, STR_PAD_LEFT);
+        $boleto->febraban['20-44'] .= $boleto->computed['nosso_numero'] = str_pad($boleto->arguments['nosso_numero'], 11, 0, STR_PAD_LEFT);
 
         //positons 37 to 43 + a fixed 0 for position 44
-        $this->febraban['20-44'] .= str_pad($this->arguments['conta'], 7, 0, STR_PAD_LEFT).'0';
+        $boleto->febraban['20-44'] .= str_pad($boleto->arguments['conta'], 7, 0, STR_PAD_LEFT).'0';
 
     }
     
     //customize object to meet specific needs
-    function custom(){
+    function custom($boleto){
           /** get nosso_numero pieces and bits together **/
-        $checkDigit = $this->arguments['carteira_nosso_numero'].$this->computed['nosso_numero'];
+        $checkDigit = $boleto->arguments['carteira_nosso_numero'].$boleto->computed['nosso_numero'];
 
         //calcule check digit
-        $checkDigit = $this->modulo_11($checkDigit, 7);
+        $checkDigit = $boleto->modulo_11($checkDigit, 7);
         //concatenate nosso_numero_com_dv plus check digit
-        $this->computed['nosso_numero'] = $this->arguments['carteira_nosso_numero'].'/'.$this->computed['nosso_numero'].'-'.$checkDigit['digito'];  
+        $boleto->computed['nosso_numero'] = $boleto->arguments['carteira_nosso_numero'].'/'.$boleto->computed['nosso_numero'].'-'.$checkDigit['digito'];  
                
     }
     
     //manipulate output fields before them getting rendered. This method is called by output().
-    function outputValues(){    
-        $this->output['agencia_codigo_cedente'] = $this->arguments['agencia'].'-'.$this->arguments['agencia_dv'].' / '.$this->arguments['conta'].'-'.$this->arguments['conta_dv'];
+    function outputValues($boleto){    
+        $boleto->output['agencia_codigo_cedente'] = $boleto->arguments['agencia'].'-'.$boleto->arguments['agencia_dv'].' / '.$boleto->arguments['conta'].'-'.$boleto->arguments['conta_dv'];
 
     }
 }
